@@ -1,0 +1,61 @@
+# Local credentials
+/apiproxy.config
+/codestyle.config
+
+# Maven and Java build output
+target/
+bin/
+out/
+*.class
+*.log
+hs_err_pid*
+replay_pid*
+
+# Maven release and build metadata
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# JAR files are ignored unless they are part of the supplied project
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+!libs/codestyle.jar
+
+# Visual Studio Code: share only the course-relevant project configuration
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.history/
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Operating-system files
+.DS_Store
+._*
+Thumbs.db
+[Dd]esktop.ini
+
+# Temporary and editor files
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+*.orig
