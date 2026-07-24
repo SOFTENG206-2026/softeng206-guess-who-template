@@ -8,6 +8,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import nz.ac.auckland.apiproxy.chat.openai.ChatCompletionRequest;
 import nz.ac.auckland.apiproxy.chat.openai.ChatCompletionRequest.Model;
 import nz.ac.auckland.apiproxy.chat.openai.ChatCompletionRequest.ReasoningEffort;
@@ -29,6 +31,7 @@ public class ChatController {
   @FXML private TextArea txtaChat;
   @FXML private TextField txtInput;
   @FXML private Button btnSend;
+  @FXML private ImageView imagePerson;
 
   private ChatCompletionRequest chatCompletionRequest;
   private String profession;
@@ -70,6 +73,10 @@ public class ChatController {
     }
   }
 
+  public void setImage(String image) {
+    imagePerson.setImage(new Image(image));
+  }
+
   /**
    * Appends a chat message to the chat text area.
    *
@@ -96,7 +103,7 @@ public class ChatController {
     ChatResponse response = chatCompletionResult.getChatResponse();
     chatCompletionRequest.addMessage(response.getChatMessage());
     appendChatMessage(response.getChatMessage());
-    TextToSpeech.speak(response.getChatMessage().getContent());
+   // TextToSpeech.speak(response.getChatMessage().getContent());
     return response.getChatMessage();
   }
 

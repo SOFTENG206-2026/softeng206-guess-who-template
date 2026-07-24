@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import javafx.scene.input.MouseEvent;
+import nz.ac.auckland.model.Customer;
 import nz.ac.auckland.se206.states.GameOver;
 import nz.ac.auckland.se206.states.GameStarted;
 import nz.ac.auckland.se206.states.GameState;
@@ -24,7 +25,7 @@ public class GameStateContext {
 
   private final String rectIdToGuess;
   private final String professionToGuess;
-  private final Map<String, String> rectanglesToProfession;
+  private final Map<String, Customer> rectanglesToCustomer;
   private final GameStarted gameStartedState;
   private final Guessing guessingState;
   private final GameOver gameOverState;
@@ -46,13 +47,11 @@ public class GameStateContext {
       }
       Object loadedData = yaml.load(inputStream);
       if (!(loadedData instanceof Map)) {
-        throw new IllegalStateException(
-            "Profession data must contain a 'professions' list.");
+        throw new IllegalStateException("Profession data must contain a 'professions' list.");
       }
       Object professionData = ((Map<?, ?>) loadedData).get("professions");
       if (!(professionData instanceof List)) {
-        throw new IllegalStateException(
-            "Profession data must contain a 'professions' list.");
+        throw new IllegalStateException("Profession data must contain a 'professions' list.");
       }
       professions = new ArrayList<>();
       for (Object value : (List<?>) professionData) {
@@ -77,15 +76,19 @@ public class GameStateContext {
     }
 
     String[] randomProfessionsArray = randomProfessions.toArray(new String[3]);
-    rectanglesToProfession = new HashMap<>();
-    rectanglesToProfession.put("rectPerson1", randomProfessionsArray[0]);
-    rectanglesToProfession.put("rectPerson2", randomProfessionsArray[1]);
-    rectanglesToProfession.put("rectPerson3", randomProfessionsArray[2]);
+    rectanglesToCustomer = new HashMap<>();
+    String profession1 = randomProfessionsArray[0];
+    String profession2 = randomProfessionsArray[1];
+    String profession3 = randomProfessionsArray[2];
+
+    rectanglesToCustomer.put("rectPerson1", new Customer("Jon", profession1, "images/jon.png"));
+    rectanglesToCustomer.put("rectPerson2", new Customer("Jane", profession2, "images/jane.png"));
+    rectanglesToCustomer.put("rectPerson3", new Customer("Mark", profession3, "images/mark.png"));
 
     int randomNumber = random.nextInt(3);
     rectIdToGuess =
         randomNumber == 0 ? "rectPerson1" : ((randomNumber == 1) ? "rectPerson2" : "rectPerson3");
-    professionToGuess = rectanglesToProfession.get(rectIdToGuess);
+    professionToGuess = rectanglesToCustomer.get(rectIdToGuess).getProfession();
   }
 
   /**
@@ -149,7 +152,7 @@ public class GameStateContext {
    * @return the profession associated with the rectangle ID
    */
   public String getProfession(String rectangleId) {
-    return rectanglesToProfession.get(rectangleId);
+    return rectanglesToCustomer.get(rectangleId).getProfession();
   }
 
   /**
@@ -161,6 +164,10 @@ public class GameStateContext {
    */
   public void handleRectangleClick(MouseEvent event, String rectangleId) throws IOException {
     gameState.handleRectangleClick(event, rectangleId);
+  }
+
+  public String getImage(String rectangleId) {
+    return rectanglesToCustomer.get(rectangleId).getImage();
   }
 
   /**

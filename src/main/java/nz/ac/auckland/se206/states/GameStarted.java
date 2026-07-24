@@ -42,7 +42,7 @@ public class GameStarted implements GameState {
         TextToSpeech.speak("Hi, let me know when you are ready to order!");
         return;
     }
-    App.openChat(event, context.getProfession(rectangleId));
+    App.openChat(event, context.getProfession(rectangleId),context.getImage(rectangleId));
   }
 
   /**
