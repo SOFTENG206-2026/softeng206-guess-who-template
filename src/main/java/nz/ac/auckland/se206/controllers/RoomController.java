@@ -5,11 +5,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
+import nz.ac.auckland.se206.AudioManager;
 import nz.ac.auckland.se206.GameStateContext;
-import nz.ac.auckland.se206.speech.TextToSpeech;
 
 /**
  * Controller class for the room view. Handles user interactions within the room where the user can
@@ -27,6 +28,8 @@ public class RoomController {
   @FXML private Rectangle rectWaitress;
   @FXML private Label lblProfession;
   @FXML private Button btnGuess;
+  @FXML private Label lblTimer;
+  @FXML private ToggleButton btnMusic;
 
   /**
    * Initializes the room view. If it's the first time initialization, it will provide instructions
@@ -35,10 +38,16 @@ public class RoomController {
   @FXML
   public void initialize() {
     if (isFirstTimeInit) {
-      TextToSpeech.speak(
-          "Chat with the three customers, and guess who is the " + context.getProfessionToGuess());
+      // TextToSpeech.speak(
+      //     "Chat with the three customers, and guess who is the "
+      //         + context.getProfessionToGuess());
       isFirstTimeInit = false;
     }
+
+    lblTimer.textProperty().bind(context.elapsedSecondsProperty().asString("Time: %d s"));
+
+    context.startTimer();
+
     lblProfession.setText(context.getProfessionToGuess());
   }
 
@@ -83,5 +92,12 @@ public class RoomController {
   @FXML
   private void onGuessClick(ActionEvent event) throws IOException {
     context.handleGuessClick();
+  }
+
+  @FXML
+  public void onMusicToggle(ActionEvent event) {
+    boolean muted = !btnMusic.isSelected();
+    AudioManager.setMuted(muted);
+    btnMusic.setText(muted ? "Music Off" : "Music On");
   }
 }

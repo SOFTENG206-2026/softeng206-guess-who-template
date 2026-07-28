@@ -1,8 +1,10 @@
 package nz.ac.auckland.se206.controllers;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -20,7 +22,6 @@ import nz.ac.auckland.apiproxy.config.ApiProxyConfig;
 import nz.ac.auckland.apiproxy.exceptions.ApiProxyException;
 import nz.ac.auckland.se206.App;
 import nz.ac.auckland.se206.prompts.PromptEngineering;
-import nz.ac.auckland.se206.speech.TextToSpeech;
 
 /**
  * Controller class for the chat view. Handles user interactions and communication with the GPT
@@ -32,6 +33,8 @@ public class ChatController {
   @FXML private TextField txtInput;
   @FXML private Button btnSend;
   @FXML private ImageView imagePerson;
+
+  private Task<ChatMessage> currentGptTask;
 
   private ChatCompletionRequest chatCompletionRequest;
   private String profession;
@@ -67,14 +70,18 @@ public class ChatController {
               .setModel(Model.GPT_5_4_NANO)
               .setReasoningEffort(ReasoningEffort.LOW)
               .setMaxCompletionTokens(300);
-      runGpt(new ChatMessage("developer", getDeveloperPrompt()));
+      runGptBackground(new ChatMessage("developer", getDeveloperPrompt()));
     } catch (ApiProxyException e) {
       e.printStackTrace();
     }
   }
 
   public void setImage(String image) {
-    imagePerson.setImage(new Image(image));
+    URL imageResource = ChatController.class.getResource(image);
+    if (imageResource == null) {
+      throw new IllegalArgumentException("Image resource not found: " + image);
+    }
+    imagePerson.setImage(new Image(imageResource.toExternalForm()));
   }
 
   /**
@@ -93,18 +100,66 @@ public class ChatController {
    * @return the response chat message
    * @throws ApiProxyException if there is an error communicating with the API proxy
    */
-  private ChatMessage runGpt(ChatMessage msg) throws ApiProxyException {
+  private ChatMessage executeGPT(ChatMessage msg) throws ApiProxyException {
+    if (!msg.getRole().equals("developer")) {
+      appendChatMessage(msg);
+    }
     chatCompletionRequest.addMessage(msg);
-
-    // This API call is deliberately synchronous in the starter prototype. You will learn how to
-    // handle asyncronous calls in week 2
     ChatCompletionResult chatCompletionResult = chatCompletionRequest.execute();
-
     ChatResponse response = chatCompletionResult.getChatResponse();
     chatCompletionRequest.addMessage(response.getChatMessage());
-    appendChatMessage(response.getChatMessage());
-   // TextToSpeech.speak(response.getChatMessage().getContent());
+
+    // TextToSpeech.speak(response.getChatMessage().getContent());
     return response.getChatMessage();
+  }
+
+  private void runGptBackground(ChatMessage msg) {
+
+    if (currentGptTask != null) {
+      return;
+    }
+
+    waitGPT(true);
+
+    currentGptTask =
+        new Task<>() {
+          @Override
+          protected ChatMessage call() throws Exception {
+            return executeGPT(msg);
+          }
+        };
+
+    currentGptTask.setOnSucceeded(
+        event -> {
+          ChatMessage result = currentGptTask.getValue();
+          appendChatMessage(result);
+          currentGptTask = null;
+          waitGPT(false);
+          txtInput.requestFocus();
+        });
+
+    currentGptTask.setOnFailed(
+        event -> {
+          currentGptTask.getException().printStackTrace();
+          currentGptTask = null;
+          waitGPT(false);
+        });
+
+    currentGptTask.setOnCancelled(
+        event -> {
+          currentGptTask = null;
+          waitGPT(false);
+        });
+
+    Thread worker = new Thread(currentGptTask, "background-worker");
+    worker.setDaemon(true);
+    worker.start();
+  }
+
+  private void waitGPT(boolean isWait) {
+    btnSend.setDisable(isWait);
+    txtInput.setDisable(isWait);
+    btnSend.setText(isWait ? "Thinking" : "Send");
   }
 
   /**
@@ -120,12 +175,8 @@ public class ChatController {
     }
     txtInput.clear();
     ChatMessage msg = new ChatMessage("user", message);
-    appendChatMessage(msg);
-    try {
-      runGpt(msg);
-    } catch (ApiProxyException e) {
-      e.printStackTrace();
-    }
+    // appendChatMessage(msg);
+    runGptBackground(msg);
   }
 
   /**
@@ -136,6 +187,9 @@ public class ChatController {
    */
   @FXML
   private void onGoBack(ActionEvent event) throws IOException {
+    if (currentGptTask != null) {
+      currentGptTask.cancel();
+    }
     App.setRoot("room");
   }
 }

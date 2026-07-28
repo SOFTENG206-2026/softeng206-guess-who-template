@@ -9,7 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.input.MouseEvent;
+import javafx.util.Duration;
 import nz.ac.auckland.model.Customer;
 import nz.ac.auckland.se206.states.GameOver;
 import nz.ac.auckland.se206.states.GameStarted;
@@ -29,10 +36,24 @@ public class GameStateContext {
   private final GameStarted gameStartedState;
   private final Guessing guessingState;
   private final GameOver gameOverState;
+  private final IntegerProperty elapsedSeconds;
+  private final Timeline gameTimer;
+
   private GameState gameState;
 
   /** Constructs a new GameStateContext and initializes the game states and professions. */
   public GameStateContext() {
+
+    elapsedSeconds = new SimpleIntegerProperty(120);
+    KeyFrame oneSecond =
+        new KeyFrame(
+            Duration.seconds(1),
+            event -> {
+              elapsedSeconds.set(elapsedSeconds.get() - 1);
+            });
+    gameTimer = new Timeline(oneSecond);
+    gameTimer.setCycleCount(Animation.INDEFINITE);
+
     gameStartedState = new GameStarted(this);
     guessingState = new Guessing(this);
     gameOverState = new GameOver(this);
@@ -81,9 +102,9 @@ public class GameStateContext {
     String profession2 = randomProfessionsArray[1];
     String profession3 = randomProfessionsArray[2];
 
-    rectanglesToCustomer.put("rectPerson1", new Customer("Jon", profession1, "images/jon.png"));
-    rectanglesToCustomer.put("rectPerson2", new Customer("Jane", profession2, "images/jane.png"));
-    rectanglesToCustomer.put("rectPerson3", new Customer("Mark", profession3, "images/mark.png"));
+    rectanglesToCustomer.put("rectPerson1", new Customer("Jon", profession1, "/images/jon.png"));
+    rectanglesToCustomer.put("rectPerson2", new Customer("Jane", profession2, "/images/jane.png"));
+    rectanglesToCustomer.put("rectPerson3", new Customer("Mark", profession3, "/images/mark.png"));
 
     int randomNumber = random.nextInt(3);
     rectIdToGuess =
@@ -97,6 +118,10 @@ public class GameStateContext {
    * @param state the new state to set
    */
   public void setState(GameState state) {
+    if (state == gameOverState) {
+      stopTimer();
+    }
+
     this.gameState = state;
   }
 
@@ -177,5 +202,20 @@ public class GameStateContext {
    */
   public void handleGuessClick() throws IOException {
     gameState.handleGuessClick();
+  }
+
+  public void startTimer() {
+    if (gameState == gameOverState || gameTimer.getStatus() == Animation.Status.RUNNING) {
+      return;
+    }
+    gameTimer.play();
+  }
+
+  public void stopTimer() {
+    gameTimer.stop();
+  }
+
+  public ReadOnlyIntegerProperty elapsedSecondsProperty() {
+    return elapsedSeconds;
   }
 }

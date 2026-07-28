@@ -83,5 +83,11 @@ public class App extends Application {
     stage.setScene(scene);
     stage.show();
     root.requestFocus();
+    AudioManager.playBackgroundMusic();
+  }
+
+  @Override
+  public void stop() {
+    AudioManager.stopBackgroundMusic();
   }
 }
