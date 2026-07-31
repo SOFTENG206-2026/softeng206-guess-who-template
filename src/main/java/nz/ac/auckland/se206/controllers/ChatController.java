@@ -20,6 +20,7 @@ import nz.ac.auckland.apiproxy.chat.openai.ChatMessage;
 import nz.ac.auckland.apiproxy.chat.openai.ChatResponse;
 import nz.ac.auckland.apiproxy.config.ApiProxyConfig;
 import nz.ac.auckland.apiproxy.exceptions.ApiProxyException;
+import nz.ac.auckland.model.Customer;
 import nz.ac.auckland.se206.App;
 import nz.ac.auckland.se206.prompts.PromptEngineering;
 
@@ -37,7 +38,7 @@ public class ChatController {
   private Task<ChatMessage> currentGptTask;
 
   private ChatCompletionRequest chatCompletionRequest;
-  private String profession;
+  private Customer customer;
 
   /** Initializes the chat view. */
   @FXML
@@ -46,23 +47,26 @@ public class ChatController {
   }
 
   /**
-   * Generates the developer prompt based on the profession.
+   * Generates the developer prompt based on the selected customer.
    *
    * @return the developer prompt string
    */
   private String getDeveloperPrompt() {
     Map<String, String> map = new HashMap<>();
-    map.put("profession", profession);
+    map.put("name", customer.getName());
+    map.put("age", String.valueOf(customer.getAge()));
+    map.put("profession", customer.getProfession());
     return PromptEngineering.getPrompt("chat.txt", map);
   }
 
   /**
-   * Sets the profession for the chat context and initializes the ChatCompletionRequest.
+   * Sets the customer for the chat context and initializes the ChatCompletionRequest.
    *
-   * @param profession the profession to set
+   * @param customer the customer to set
    */
-  public void setProfession(String profession) {
-    this.profession = profession;
+  public void setCustomer(Customer customer) {
+    this.customer = customer;
+    setImage(customer.getImage());
     try {
       ApiProxyConfig config = ApiProxyConfig.readConfig();
       chatCompletionRequest =

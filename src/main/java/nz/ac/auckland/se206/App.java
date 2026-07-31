@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import nz.ac.auckland.model.Customer;
 import nz.ac.auckland.se206.controllers.ChatController;
 
 /**
@@ -50,20 +51,18 @@ public class App extends Application {
   }
 
   /**
-   * Opens the chat view and sets the profession in the chat controller.
+   * Opens the chat view and sets the selected customer in the chat controller.
    *
    * @param event the mouse event that triggered the method
-   * @param profession the profession to set in the chat controller
+   * @param customer the customer to set in the chat controller
    * @throws IOException if the FXML file is not found
    */
-  public static void openChat(MouseEvent event, String profession, String image)
-      throws IOException {
+  public static void openChat(MouseEvent event, Customer customer) throws IOException {
     FXMLLoader loader = new FXMLLoader(App.class.getResource("/fxml/chat.fxml"));
     Parent root = loader.load();
 
     ChatController chatController = loader.getController();
-    chatController.setProfession(profession);
-    chatController.setImage(image);
+    chatController.setCustomer(customer);
     Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
     scene = new Scene(root);
     stage.setScene(scene);

@@ -89,7 +89,7 @@ public class GameStateContext {
       throw new IllegalStateException("Profession data must contain at least three unique values.");
     }
 
-    Random random = new Random();
+    Random random = new Random(1);
     Set<String> randomProfessions = new HashSet<>();
     while (randomProfessions.size() < 3) {
       String profession = professions.get(random.nextInt(professions.size()));
@@ -99,12 +99,16 @@ public class GameStateContext {
     String[] randomProfessionsArray = randomProfessions.toArray(new String[3]);
     rectanglesToCustomer = new HashMap<>();
     String profession1 = randomProfessionsArray[0];
+    System.out.println(profession1);
     String profession2 = randomProfessionsArray[1];
     String profession3 = randomProfessionsArray[2];
 
-    rectanglesToCustomer.put("rectPerson1", new Customer("Jon", profession1, "/images/jon.png"));
-    rectanglesToCustomer.put("rectPerson2", new Customer("Jane", profession2, "/images/jane.png"));
-    rectanglesToCustomer.put("rectPerson3", new Customer("Mark", profession3, "/images/mark.png"));
+    rectanglesToCustomer.put(
+        "rectPerson1", new Customer("Jon", 28, profession1, "/images/jon.png"));
+    rectanglesToCustomer.put(
+        "rectPerson2", new Customer("Jane", 34, profession2, "/images/jane.png"));
+    rectanglesToCustomer.put(
+        "rectPerson3", new Customer("Mark", 46, profession3, "/images/mark.png"));
 
     int randomNumber = random.nextInt(3);
     rectIdToGuess =
@@ -178,6 +182,16 @@ public class GameStateContext {
    */
   public String getProfession(String rectangleId) {
     return rectanglesToCustomer.get(rectangleId).getProfession();
+  }
+
+  /**
+   * Gets the customer associated with a specific rectangle ID.
+   *
+   * @param rectangleId the rectangle ID
+   * @return the customer associated with the rectangle ID
+   */
+  public Customer getCustomer(String rectangleId) {
+    return rectanglesToCustomer.get(rectangleId);
   }
 
   /**
