@@ -27,6 +27,11 @@
           <version>3.0.0-M7</version>
         </plugin>
         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-site-plugin</artifactId>
+            <version>3.21.0</version>
+        </plugin>
+        <plugin>
           <artifactId>javafx-maven-plugin</artifactId>
           <configuration>
             <mainClass>nz.ac.auckland.se206.App</mainClass>
