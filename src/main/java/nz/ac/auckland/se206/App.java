@@ -52,7 +52,7 @@ public class App extends Application {
 
   /**
    * Opens the chat view and sets the selected customer in the chat controller.
-   *
+   * let's change thgis javadoc
    * @param event the mouse event that triggered the method
    * @param customer the customer to set in the chat controller
    * @throws IOException if the FXML file is not found
