@@ -44,7 +44,7 @@ public class GameStateContext {
   /** Constructs a new GameStateContext and initializes the game states and professions. */
   public GameStateContext() {
 
-    elapsedSeconds = new SimpleIntegerProperty(118);
+    elapsedSeconds = new SimpleIntegerProperty(119);
     KeyFrame oneSecond =
         new KeyFrame(
             Duration.seconds(1),
